@@ -1,24 +1,19 @@
-import cv2
-import numpy as np
-import asyncio
 import websockets
+import asyncio
+import cv2
 
+camera = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
-async def connect_to_existing_websocket_server():
-    uri = "ws://localhost:8000/ws"
-    cap = cv2.VideoCapture(0)  # Use the default camera (change the index if needed)
-
-    async with websockets.connect(uri) as websocket:
-        # Perform WebSocket operations here
-        for i in range(100):
-            ret, frame = cap.read()
-            if not ret:
-                print("Error reading")
+async def main():
+    # Connect to the server
+    async with websockets.connect('ws://localhost:8000/ws') as ws:
+         while True:
+            success, frame = camera.read()
+            if not success:
                 break
-            mean = str(frame.mean())
-            cv2.imshow("Video Stream", frame)
-            await websocket.send(f"Hello, WebSocket Server{mean}")
+            else:
+                ret, buffer = cv2.imencode('.png', frame)
+                await ws.send(buffer.tobytes())
 
-
-if __name__ == "__main__":
-    asyncio.get_event_loop().run_until_complete(connect_to_existing_websocket_server())
+# Start the connection
+asyncio.run(main())

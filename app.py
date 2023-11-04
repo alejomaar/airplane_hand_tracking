@@ -1,23 +1,23 @@
-from fastapi import FastAPI, WebSocket
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+import cv2
+import numpy as np
 
 app = FastAPI()
 
-
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
+    # listen for connections
     await websocket.accept()
-    print("Incoming websocket connection established")
-    # Establish a connection to the target WebSocket server (Service C)
-    
+    #count = 1
     try:
         while True:
-            message = await websocket.receive_text()
-            print(f"Received message: {message}")
-            
-            # Forward the received message to another WebSocket server (Service C)
-    except Exception as e:
-        print(e)
-        #await websocket.close()
-        
-
-
+            contents = await websocket.receive_bytes()
+            arr = np.frombuffer(contents, np.uint8)
+            frame = cv2.imdecode(arr, cv2.IMREAD_UNCHANGED)
+            cv2.imshow('frame', frame)
+            cv2.waitKey(1)
+            #cv2.imwrite("frame%d.png" % count, frame)
+            #count += 1
+    except WebSocketDisconnect:
+        cv2.destroyWindow("frame")
+        print("Client disconnected")
