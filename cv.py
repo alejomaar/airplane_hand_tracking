@@ -24,10 +24,12 @@ async def capture_frames_and_display():
 
 
 async def send_mean_color():
+    print("executing")
     async with websockets.connect("ws://localhost:8000/ws") as websocket:
         while True:
             now = time.strftime("%Y-%m-%d %H:%M:%S")
-            await websocket.send_text(now)
+            print(now)
+            await websocket.send(now)
             await asyncio.sleep(10)
 
 
