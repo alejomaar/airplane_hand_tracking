@@ -4,6 +4,7 @@ import websockets
 async def connect_to_existing_websocket_server():
     uri = "ws://localhost:8000/ws"
     
+    
     async with websockets.connect(uri) as websocket:
         # Perform WebSocket operations here
         await websocket.send("Hello, WebSocket Server!")
