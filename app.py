@@ -16,9 +16,12 @@ async def websocket_endpoint(websocket: WebSocket):
             arr = np.frombuffer(contents, np.uint8)
             frame = cv2.imdecode(arr, cv2.IMREAD_UNCHANGED)
             msg = str(np.mean(frame))
+            cv2.imshow("frame", frame)
+            cv2.waitKey(1)
             print(msg)
             await forward_websocket.send(msg)
     except WebSocketDisconnect:
+        cv2.destroyWindow("frame")
         print("Client disconnected")
 
 
