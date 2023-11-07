@@ -55,8 +55,8 @@ async def websocket_endpoint(websocket: WebSocket):
         while True:
             img_bytes = await websocket.receive_bytes()
             frame = decode_image(img_bytes)
-            show_video_streaming(frame)
             dynamics = get_dynamics_from_tracking(frame)
+            show_video_streaming(frame)
             if dynamics is None:
                 continue
             
