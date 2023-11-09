@@ -6,6 +6,8 @@ from numpy.typing import NDArray
 from numpy import uint8
 from services import HandTracking, Movement
 import schemas
+from config.settings import settings
+
 
 app = FastAPI()
 hand_tracking = HandTracking()
@@ -50,7 +52,7 @@ def get_dynamics_from_tracking(frame: NDArray[uint8]):
 async def websocket_endpoint(websocket: WebSocket):
     # listen for connections
     await websocket.accept()
-    forward_websocket = await websockets.connect("ws://localhost:8001/unity")
+    forward_websocket = await websockets.connect(f"{settings.ws_host_client}/unity", open_timeout=60*3)
     try:
         while True:
             img_bytes = await websocket.receive_bytes()
