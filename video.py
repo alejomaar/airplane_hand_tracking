@@ -2,6 +2,7 @@ import websockets
 import asyncio
 import cv2
 from config.settings import settings
+from tenacity import retry, stop_after_attempt, wait_fixed
 
 camera = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
@@ -24,18 +25,9 @@ async def streaming():
                 await ws.send(buffer.tobytes())
 
 
+@retry(wait=wait_fixed(5), stop=stop_after_attempt(10))
 async def main():
-    max_retries = 3
-    retry_count = 0
-
-    while retry_count < max_retries:
-        try:
-            await asyncio.create_task(streaming())
-        except Exception as e:
-            print(f"Retrying service ({retry_count + 1}/{max_retries})")
-            await asyncio.sleep(settings.ws_timeout)
-            retry_count += 1
-    print("The connection could not be established")
+    await asyncio.create_task(streaming())
 
 
 if __name__ == "__main__":
